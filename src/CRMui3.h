@@ -199,6 +199,7 @@ class CRMui3 {
     void cfgAutoSave();
     void cfgPrint();
     void var_auto_save(bool);
+    void appendBufUI(String s);
 
     String _app_name;
     String *_project_version = nullptr;
@@ -215,6 +216,7 @@ class CRMui3 {
     String *_bufUld = nullptr;
     String *_bufWebUpdate = nullptr;
     String *_bufApiResponse = nullptr;
+    AsyncResponseStream *_response = nullptr;
 };
 
 #endif

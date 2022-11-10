@@ -229,39 +229,47 @@ void CRMui3::http() {
   server.on("/ui", HTTP_POST, [this](AsyncWebServerRequest * request) {
     if (_WebAuthLogin && !request->authenticate((*_WebAuthLogin).c_str(), (*_WebAuthPass).c_str()))
       return request->requestAuthentication();
-    _bufUI = new String;
-    *_bufUI += F("{\"_t\":0,\"an\":\"");
-    *_bufUI += _app_name;
-    *_bufUI += F("\",\"id\":\"");
-    *_bufUI += getID();
-    *_bufUI += F("\",\"fw\":\"");
-    *_bufUI += (_project_version ? *_project_version : CRM_VER);
-    *_bufUI += F("\",\"a\":");
-    *_bufUI += (_WebAuthLogin ? true : false);
+    _response = request->beginResponseStream("application/json");
+    _response->print(F("{\"_t\":0,\"an\":\""));
+    _response->print( _app_name);
+    _response->print(F("\",\"id\":\""));
+    _response->print(getID());
+    _response->print(F("\",\"fw\":\""));
+    _response->print((_project_version ? *_project_version : CRM_VER));
+    _response->print(F("\",\"a\":"));
+    _response->print((_WebAuthLogin ? true : false));
     if (_eMail) {
-      *_bufUI += F(",\"em\":\"");
-      *_bufUI += *_eMail;
-      *_bufUI += F("\"");
+      _response->print(F(",\"em\":\""));
+      _response->print(*_eMail);
+      _response->print(F("\""));
     }
     if (_telega) {
-      *_bufUI += F(",\"tg\":\"");
-      *_bufUI += *_telega;
-      *_bufUI += F("\"");
+      _response->print(F(",\"tg\":\""));
+      _response->print(*_telega);
+      _response->print(F("\""));
     }
     if (_homePage) {
-      *_bufUI += F(",\"hp\":\"");
-      *_bufUI += *_homePage;
-      *_bufUI += F("\"");
+      _response->print(F(",\"hp\":\""));
+      _response->print(*_homePage);
+      _response->print(F("\""));
     }
-    *_bufUI += F(",\"c\":[");
+    _response->print(F(",\"c\":"));
+    _bufUI = new String;
+    *_bufUI = "[";
     ui();
-    *_bufUI += F("]],\"cfg\":");
+    _response->print(*_bufUI);
+    delete _bufUI;
+    _bufUI = new String;
+    _response->print(F("]],\"cfg\":"));
     serializeJson(cfg, *_bufUI);
-    *_bufUI += F("}");
+    _response->print(*_bufUI);
+    _response->print(F("}"));
     /*if (b.length() > 8192) request->send_P(200, F("application/json"), b.c_str());
       else request->send(200, F("application/json"), b);*/
-    request->send(200, F("application/json"), (*_bufUI).c_str());
+    //request->send(200, F("application/json"), (*_bufUI).c_str());
+    request->send(_response);
     delete _bufUI;
+    _response = nullptr;
     _bufUI = nullptr;
   });
 

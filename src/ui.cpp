@@ -1,6 +1,12 @@
 #include "CRMui3.h"
 
-
+void CRMui3::appendBufUI(String s) {
+  *_bufUI += s;
+  if (_bufUI->length()>768 && _response) {
+    _response->print(_bufUI->substring(0,767));
+    *_bufUI = _bufUI->substring(768);
+  }
+}
 
 void CRMui3::selOpt(SelOpt item) {
   if (_start) return;
